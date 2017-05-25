@@ -10,10 +10,18 @@ mtype = { OBSTACLE, NONE };
 
 /** タクシー A **/
 proctype taxi_a() {
+	 mtype sts = WAITING;
+	 mtype pos = POS_A;
+	 
+	 do
+	 ::
+	 od;
 }
 
 /** タクシー B **/
 proctype taxi_b() {
+	 mtype sts = WAITING;
+	 mtype pos = POS_A_;
 }
 
 /** 乗客 A **/
