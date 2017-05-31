@@ -20,12 +20,50 @@ proctype taxi_a() {
 	 mtype end = POS_NONE;
 	 
 	 do
-	 ::sts == WAITING -> skip;
-	 ::sts == PICKUP -> skip;
-	 ::sts == GETTING_ON -> skip;
-	 ::sts == RENT -> skip;
-	 ::sts == GETTING_OFF -> skip;
-	 ::sts == FORWARDING -> skip;
+	 ::sts == WAITING -> if
+	       ::d2t_b ? start, end -> sts = PICKUP;
+	       fi;
+	 ::sts == PICKUP -> if
+	       ::pos == start -> sts = GETTING_ON;
+	       ::else -> if
+	       	      ::pos == POS_A -> pos = POS_1;
+		      ::pos == POS_1 -> pos = POS_B;
+		      ::pos == POS_B -> pos = POS_2;
+		      ::pos == POS_2 -> pos = POS_C;
+		      ::pos == POS_C -> pos = POS_3;
+		      ::pos == POS_3 -> pos = POS_D;
+		      ::pos == POS_D -> pos = POS_E;
+		      ::pos == POS_E -> pos = POS_A;
+		      fi;
+		fi;
+	 ::sts == GETTING_ON -> sts = RENT;
+	 ::sts == RENT -> if
+	       ::pos == end -> sts = GETTING_ON;
+	       ::else -> if
+	       	      ::pos == POS_A -> pos = POS_1;
+		      ::pos == POS_1 -> pos = POS_B;
+		      ::pos == POS_B -> pos = POS_2;
+		      ::pos == POS_2 -> pos = POS_C;
+		      ::pos == POS_C -> pos = POS_3;
+		      ::pos == POS_3 -> pos = POS_D;
+		      ::pos == POS_D -> pos = POS_E;
+		      ::pos == POS_E -> pos = POS_A;
+		      fi;
+		fi;
+	 ::sts == GETTING_OFF -> sts = FORWARDING;
+	 ::sts == FORWARDING -> if
+	       ::pos == POS_A -> sts = WAITING;
+	       ::else -> if
+	       	      ::pos == POS_A -> pos = POS_1;
+		      ::pos == POS_1 -> pos = POS_B;
+		      ::pos == POS_B -> pos = POS_2;
+		      ::pos == POS_2 -> pos = POS_C;
+		      ::pos == POS_C -> pos = POS_3;
+		      ::pos == POS_3 -> pos = POS_D;
+		      ::pos == POS_D -> pos = POS_E;
+		      ::pos == POS_E -> pos = POS_A;
+		      fi;
+		fi;
 	 od;
 }
 
@@ -37,12 +75,50 @@ proctype taxi_b() {
 	 mtype end = POS_NONE_;
 	 
 	 do
-	 ::sts == WAITING -> skip;
-	 ::sts == PICKUP -> skip;
-	 ::sts == GETTING_ON -> skip;
-	 ::sts == RENT -> skip;
-	 ::sts == GETTING_OFF -> skip;
-	 ::sts == FORWARDING -> skip;
+	 ::sts == WAITING -> if
+	       ::d2t_b ? start, end -> sts = PICKUP;
+	       fi;
+	 ::sts == PICKUP -> if
+	       ::pos == start -> sts = GETTING_ON;
+	       ::else -> if
+	       	      ::pos == POS_A_ -> pos = POS_1_;
+		      ::pos == POS_1_ -> pos = POS_B_;
+		      ::pos == POS_B_ -> pos = POS_2_;
+		      ::pos == POS_2_ -> pos = POS_C_;
+		      ::pos == POS_C_ -> pos = POS_3_;
+		      ::pos == POS_3_ -> pos = POS_D_;
+		      ::pos == POS_D_ -> pos = POS_E_;
+		      ::pos == POS_E_ -> pos = POS_A_;
+		      fi;
+		fi;
+	 ::sts == GETTING_ON -> sts = RENT;
+	 ::sts == RENT -> if
+	       ::pos == end -> sts = GETTING_ON;
+	       ::else -> if
+	       	      ::pos == POS_A_ -> pos = POS_1_;
+		      ::pos == POS_1_ -> pos = POS_B_;
+		      ::pos == POS_B_ -> pos = POS_2_;
+		      ::pos == POS_2_ -> pos = POS_C_;
+		      ::pos == POS_C_ -> pos = POS_3_;
+		      ::pos == POS_3_ -> pos = POS_D_;
+		      ::pos == POS_D_ -> pos = POS_E_;
+		      ::pos == POS_E_ -> pos = POS_A_;
+		      fi;
+		fi;
+	 ::sts == GETTING_OFF -> sts = FORWARDING;
+	 ::sts == FORWARDING -> if
+	       ::pos == POS_A_ -> sts = WAITING;
+	       ::else -> if
+	       	      ::pos == POS_A_ -> pos = POS_1_;
+		      ::pos == POS_1_ -> pos = POS_B_;
+		      ::pos == POS_B_ -> pos = POS_2_;
+		      ::pos == POS_2_ -> pos = POS_C_;
+		      ::pos == POS_C_ -> pos = POS_3_;
+		      ::pos == POS_3_ -> pos = POS_D_;
+		      ::pos == POS_D_ -> pos = POS_E_;
+		      ::pos == POS_E_ -> pos = POS_A_;
+		      fi;
+		fi;
 	 od;
 }
 
@@ -85,12 +161,13 @@ proctype director() {
 	       ::skip -> sts = TAXI_B;
 	       fi;
 	 ::sts == TAXI_A -> if
-	       ::skip -> d2t_a ! POS_1, POS_2;
-	       ::skip -> d2t_a ! POS_1, POS_3;
-	       ::skip -> d2t_a ! POS_2, POS_3;
-	       ::skip -> d2t_a ! POS_2, POS_1;
-	       ::skip -> d2t_a ! POS_3, POS_1;
-	       ::skip -> d2t_a ! POS_3, POS_2;
+	       ::d2t_a ! POS_1, POS_2;
+	       ::d2t_a ! POS_1, POS_3;
+	       ::d2t_a ! POS_2, POS_3;
+	       ::d2t_a ! POS_2, POS_1;
+	       ::d2t_a ! POS_3, POS_1;
+	       ::d2t_a ! POS_3, POS_2;
+	       ::timeout -> skip;
 	       fi;
 	       if
 	       ::skip -> sts = SLEEP;
@@ -98,12 +175,13 @@ proctype director() {
 	       ::skip -> sts = TAXI_B;
 	       fi;
 	 ::sts == TAXI_B -> if
-	       ::skip -> d2t_b ! POS_1, POS_2;
-	       ::skip -> d2t_b ! POS_1, POS_3;
-	       ::skip -> d2t_b ! POS_2, POS_3;
-	       ::skip -> d2t_b ! POS_2, POS_1;
-	       ::skip -> d2t_b ! POS_3, POS_1;
-	       ::skip -> d2t_b ! POS_3, POS_2;
+	       ::d2t_b ! POS_1_, POS_2_;
+	       ::d2t_b ! POS_1_, POS_3_;
+	       ::d2t_b ! POS_2_, POS_3_;
+	       ::d2t_b ! POS_2_, POS_1_;
+	       ::d2t_b ! POS_3_, POS_1_;
+	       ::d2t_b ! POS_3_, POS_2_;
+	       ::timeout -> skip;
 	       fi;
 	       if
 	       ::skip -> sts = SLEEP;
@@ -117,7 +195,7 @@ proctype director() {
 init {
      run taxi_a();
      run taxi_b();
-     run passenger_a();
-     run passenger_b();
+/*     run passenger_a();
+     run passenger_b(); */
      run director();
 }
