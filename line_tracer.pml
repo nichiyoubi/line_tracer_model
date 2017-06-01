@@ -11,11 +11,12 @@ mtype = { SLEEP, TAXI_A, TAXI_B };
 chan d2t_a = [1] of { mtype, mtype };	/** channel for director -> taxi_a **/
 chan d2t_b = [1] of { mtype, mtype };	/** channel for director -> taxi_b **/
 
+mtype pos_a = POS_A;
+mtype pos_b = POS_A_;
 
 /** タクシー A **/
 proctype taxi_a() {
 	 mtype sts = WAITING;
-	 mtype pos = POS_A;
 	 mtype start = POS_NONE;
 	 mtype end = POS_NONE;
 	 
@@ -24,44 +25,56 @@ proctype taxi_a() {
 	       ::d2t_b ? start, end -> sts = PICKUP;
 	       fi;
 	 ::sts == PICKUP -> if
-	       ::pos == start -> sts = GETTING_ON;
+	       ::pos_a == start -> sts = GETTING_ON;
 	       ::else -> if
-	       	      ::pos == POS_A -> pos = POS_1;
-		      ::pos == POS_1 -> pos = POS_B;
-		      ::pos == POS_B -> pos = POS_2;
-		      ::pos == POS_2 -> pos = POS_C;
-		      ::pos == POS_C -> pos = POS_3;
-		      ::pos == POS_3 -> pos = POS_D;
-		      ::pos == POS_D -> pos = POS_E;
-		      ::pos == POS_E -> pos = POS_A;
+	       	      ::pos_a == POS_A -> pos_a = POS_2;
+		      ::pos_a == POS_2 -> pos_a = POS_B;
+		      ::pos_a == POS_B -> pos_a = POS_3;
+		      ::pos_a == POS_3 -> pos_a = POS_C;
+		      ::pos_a == POS_C -> if
+		      	      ::pos_b == POS_E_ -> skip;
+			      ::pos_b == POS_D_ -> skip;
+			      ::else -> pos_a = POS_D;
+			      fi;
+		      ::pos_a == POS_D -> pos_a = POS_E;
+		      ::pos_a == POS_E -> pos_a = POS_1;
+		      ::pos_a == POS_1 -> pos_a = POS_A
 		      fi;
 		fi;
 	 ::sts == GETTING_ON -> sts = RENT;
 	 ::sts == RENT -> if
-	       ::pos == end -> sts = GETTING_ON;
+	       ::pos_a == end -> sts = GETTING_ON;
 	       ::else -> if
-	       	      ::pos == POS_A -> pos = POS_1;
-		      ::pos == POS_1 -> pos = POS_B;
-		      ::pos == POS_B -> pos = POS_2;
-		      ::pos == POS_2 -> pos = POS_C;
-		      ::pos == POS_C -> pos = POS_3;
-		      ::pos == POS_3 -> pos = POS_D;
-		      ::pos == POS_D -> pos = POS_E;
-		      ::pos == POS_E -> pos = POS_A;
+	       	      ::pos_a == POS_A -> pos_a = POS_1;
+		      ::pos_a == POS_1 -> pos_a = POS_B;
+		      ::pos_a == POS_B -> pos_a = POS_2;
+		      ::pos_a == POS_2 -> pos_a = POS_C;
+		      ::pos_a == POS_C -> if
+		      	      ::pos_b == POS_E_ -> skip;
+			      ::pos_b == POS_D_ -> skip;
+			      ::else -> pos_a = POS_3;
+			      fi;
+		      ::pos_a == POS_3 -> pos_a = POS_D;
+		      ::pos_a == POS_D -> pos_a = POS_E;
+		      ::pos_a == POS_E -> pos_a = POS_A;
 		      fi;
 		fi;
 	 ::sts == GETTING_OFF -> sts = FORWARDING;
 	 ::sts == FORWARDING -> if
-	       ::pos == POS_A -> sts = WAITING;
+	       ::pos_a == POS_A -> sts = WAITING;
 	       ::else -> if
-	       	      ::pos == POS_A -> pos = POS_1;
-		      ::pos == POS_1 -> pos = POS_B;
-		      ::pos == POS_B -> pos = POS_2;
-		      ::pos == POS_2 -> pos = POS_C;
-		      ::pos == POS_C -> pos = POS_3;
-		      ::pos == POS_3 -> pos = POS_D;
-		      ::pos == POS_D -> pos = POS_E;
-		      ::pos == POS_E -> pos = POS_A;
+	       	      ::pos_a == POS_A -> pos_a = POS_1;
+		      ::pos_a == POS_1 -> pos_a = POS_B;
+		      ::pos_a == POS_B -> pos_a = POS_2;
+		      ::pos_a == POS_2 -> pos_a = POS_C;
+		      ::pos_a == POS_C -> if
+		      	      ::pos_b == POS_E_ -> skip;
+			      ::pos_b == POS_D_ -> skip;
+			      ::else -> pos_a = POS_3;
+			      fi;
+		      ::pos_a == POS_3 -> pos_a = POS_D;
+		      ::pos_a == POS_D -> pos_a = POS_E;
+		      ::pos_a == POS_E -> pos_a = POS_A;
 		      fi;
 		fi;
 	 od;
@@ -70,7 +83,6 @@ proctype taxi_a() {
 /** タクシー B **/
 proctype taxi_b() {
 	 mtype sts = WAITING;
-	 mtype pos = POS_A_;
 	 mtype start = POS_NONE_;
 	 mtype end = POS_NONE_;
 	 
@@ -79,44 +91,48 @@ proctype taxi_b() {
 	       ::d2t_b ? start, end -> sts = PICKUP;
 	       fi;
 	 ::sts == PICKUP -> if
-	       ::pos == start -> sts = GETTING_ON;
+	       ::pos_b == start -> sts = GETTING_ON;
 	       ::else -> if
-	       	      ::pos == POS_A_ -> pos = POS_1_;
-		      ::pos == POS_1_ -> pos = POS_B_;
-		      ::pos == POS_B_ -> pos = POS_2_;
-		      ::pos == POS_2_ -> pos = POS_C_;
-		      ::pos == POS_C_ -> pos = POS_3_;
-		      ::pos == POS_3_ -> pos = POS_D_;
-		      ::pos == POS_D_ -> pos = POS_E_;
-		      ::pos == POS_E_ -> pos = POS_A_;
+	       	      ::pos_b == POS_A_ -> pos_b = POS_1_;
+		      ::pos_b == POS_1_ -> pos_b = POS_E_;
+		      ::pos_b == POS_E_ -> if
+		      	      ::pos_a == POS_D -> skip;
+			      ::pos_a == POS_E -> skip;
+			      ::else -> pos_b = POS_D_;
+			      fi;
+		      ::pos_b == POS_D_ -> pos_b = POS_C_;
+		      ::pos_b == POS_C_ -> pos_b = POS_3_;
+		      ::pos_b == POS_3_ -> pos_b = POS_B_;
+		      ::pos_b == POS_B_ -> pos_b = POS_2_;
+		      ::pos_b == POS_2_ -> pos_b = POS_A_;
 		      fi;
 		fi;
 	 ::sts == GETTING_ON -> sts = RENT;
 	 ::sts == RENT -> if
-	       ::pos == end -> sts = GETTING_ON;
+	       ::pos_b == end -> sts = GETTING_ON;
 	       ::else -> if
-	       	      ::pos == POS_A_ -> pos = POS_1_;
-		      ::pos == POS_1_ -> pos = POS_B_;
-		      ::pos == POS_B_ -> pos = POS_2_;
-		      ::pos == POS_2_ -> pos = POS_C_;
-		      ::pos == POS_C_ -> pos = POS_3_;
-		      ::pos == POS_3_ -> pos = POS_D_;
-		      ::pos == POS_D_ -> pos = POS_E_;
-		      ::pos == POS_E_ -> pos = POS_A_;
+	       	      ::pos_b == POS_A_ -> pos_b = POS_1_;
+		      ::pos_b == POS_1_ -> pos_b = POS_B_;
+		      ::pos_b == POS_B_ -> pos_b = POS_2_;
+		      ::pos_b == POS_2_ -> pos_b = POS_C_;
+		      ::pos_b == POS_C_ -> pos_b = POS_3_;
+		      ::pos_b == POS_3_ -> pos_b = POS_D_;
+		      ::pos_b == POS_D_ -> pos_b = POS_E_;
+		      ::pos_b == POS_E_ -> pos_b = POS_A_;
 		      fi;
 		fi;
 	 ::sts == GETTING_OFF -> sts = FORWARDING;
 	 ::sts == FORWARDING -> if
-	       ::pos == POS_A_ -> sts = WAITING;
+	       ::pos_b == POS_A_ -> sts = WAITING;
 	       ::else -> if
-	       	      ::pos == POS_A_ -> pos = POS_1_;
-		      ::pos == POS_1_ -> pos = POS_B_;
-		      ::pos == POS_B_ -> pos = POS_2_;
-		      ::pos == POS_2_ -> pos = POS_C_;
-		      ::pos == POS_C_ -> pos = POS_3_;
-		      ::pos == POS_3_ -> pos = POS_D_;
-		      ::pos == POS_D_ -> pos = POS_E_;
-		      ::pos == POS_E_ -> pos = POS_A_;
+	       	      ::pos_b == POS_A_ -> pos_b = POS_1_;
+		      ::pos_b == POS_1_ -> pos_b = POS_B_;
+		      ::pos_b == POS_B_ -> pos_b = POS_2_;
+		      ::pos_b == POS_2_ -> pos_b = POS_C_;
+		      ::pos_b == POS_C_ -> pos_b = POS_3_;
+		      ::pos_b == POS_3_ -> pos_b = POS_D_;
+		      ::pos_b == POS_D_ -> pos_b = POS_E_;
+		      ::pos_b == POS_E_ -> pos_b = POS_A_;
 		      fi;
 		fi;
 	 od;
